@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import Navigation from "@/components/Navigation";
 import ProductCard from "@/components/ProductCard";
 import type { Product } from "@/lib/types";
@@ -11,103 +11,165 @@ import {
   Send,
   ImageIcon,
   RotateCcw,
+  Loader2,
 } from "lucide-react";
 
-const mockMessages = [
-  {
-    role: "ai" as const,
-    content:
-      "I can see a spacious living room with high ceilings, warm natural light from the left, and a neutral base palette — cream walls with light oak flooring. The proportions suggest mid-century or Scandinavian furniture would sit beautifully here. What mood are you going for?",
-  },
-  {
-    role: "user" as const,
-    content:
-      "Something warm and calm, Scandinavian but not cold. Budget around €8,000 for the main pieces.",
-  },
-  {
-    role: "ai" as const,
-    content:
-      "Perfect. Given the warm natural light and generous proportions, I'd recommend pieces that embrace organic forms and natural materials. Here's a curated selection that creates a cohesive, inviting atmosphere while respecting your budget:",
-  },
-];
+interface Message {
+  role: "ai" | "user";
+  content: string;
+}
 
-const mockProducts: Product[] = [
-  {
-    id: "mock-1", name: "Mags Sofa 3-Seater", brand: "HAY", brand_country: "Denmark",
-    category: "Furniture", subcategory: "Sofa", price_eur: 3295,
-    styles: ["Scandinavian", "Modern"], materials: ["Fabric", "Wood"],
-    design_feel: ["Warm", "Calm"], colors: ["Beige"], room_types: ["Living Room"],
-    description: "A modular sofa system with clean lines and generous proportions.",
-    image_url: "https://placehold.co/400x400/E8E0D8/2D2D2D?text=Mags+Sofa",
-  },
-  {
-    id: "mock-2", name: "Flowerpot VP3 Table Lamp", brand: "&Tradition", brand_country: "Denmark",
-    category: "Lighting", subcategory: "Table Lamp", price_eur: 359,
-    styles: ["Scandinavian"], materials: ["Metal"],
-    design_feel: ["Warm", "Soft"], colors: ["Grey"], room_types: ["Living Room"],
-    description: "Verner Panton's iconic 1968 design.",
-    image_url: "https://placehold.co/400x400/E8E0D8/2D2D2D?text=Flowerpot",
-  },
-  {
-    id: "mock-3", name: "Lato LN9 Side Table", brand: "&Tradition", brand_country: "Denmark",
-    category: "Furniture", subcategory: "Coffee Table", price_eur: 489,
-    styles: ["Modern", "Sculptural"], materials: ["Marble", "Steel"],
-    design_feel: ["Elegant", "Minimal"], colors: ["White"], room_types: ["Living Room"],
-    description: "Designed by Luca Nichetto, oval marble top on sculptural steel base.",
-    image_url: "https://placehold.co/400x400/E8E0D8/2D2D2D?text=Lato+LN9",
-  },
-  {
-    id: "mock-4", name: "Restore Round Basket", brand: "Muuto", brand_country: "Denmark",
-    category: "Decor", subcategory: "Storage", price_eur: 89,
-    styles: ["Scandinavian", "Minimal"], materials: ["Recycled PET Felt"],
-    design_feel: ["Calm", "Natural"], colors: ["Burnt Orange"], room_types: ["Living Room"],
-    description: "Made from recycled plastic bottles transformed into soft felt.",
-    image_url: "https://placehold.co/400x400/E8E0D8/2D2D2D?text=Restore",
-  },
-];
-
-const recommendedProducts = [
-  {
-    product: mockProducts[0],
-    reason:
-      "The Mags sofa in Hallingdal 224 brings warmth through its nubby textile and generous proportions — it anchors the room without overwhelming the natural light.",
-  },
-  {
-    product: mockProducts[1],
-    reason:
-      "Panton's Flowerpot in soft grey adds a friendly, sculptural accent beside the sofa. Its rounded form softens the room's linear architecture.",
-  },
-  {
-    product: mockProducts[2],
-    reason:
-      "The Lato side table's warm Crema Diva marble pairs with the oak floor — a touch of understated luxury that ties the palette together.",
-  },
-  {
-    product: mockProducts[3],
-    reason:
-      "The Restore basket in burnt orange introduces a grounding accent color while solving practical storage needs. Made from recycled materials.",
-  },
-];
+interface Recommendation {
+  product: Product;
+  reason: string;
+}
 
 export default function StudioPage() {
   const [uploaded, setUploaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
+  const [roomAnalysis, setRoomAnalysis] = useState<Record<string, unknown> | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [userMessage, setUserMessage] = useState("");
+  const [analyzing, setAnalyzing] = useState(false);
+  const [recommending, setRecommending] = useState(false);
+  const [visualizing, setVisualizing] = useState(false);
+  const [visualizationUrl, setVisualizationUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    setUploaded(true);
+  const scrollToBottom = () => {
+    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+  };
+
+  const processFile = useCallback((file: File) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64 = e.target?.result as string;
+      setImagePreview(base64);
+      setImageBase64(base64);
+      setUploaded(true);
+      setAnalyzing(true);
+      setMessages([{ role: "ai", content: "Analyzing your space..." }]);
+
+      try {
+        const res = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: base64 }),
+        });
+        const analysis = await res.json();
+        setRoomAnalysis(analysis);
+
+        const summary = analysis.summary || "I can see your space. What style are you going for?";
+        setMessages([{ role: "ai", content: summary }]);
+      } catch {
+        setMessages([{
+          role: "ai",
+          content: "I can see your room. Tell me about the style you're looking for and your budget, and I'll curate the perfect pieces.",
+        }]);
+      } finally {
+        setAnalyzing(false);
+      }
+    };
+    reader.readAsDataURL(file);
   }, []);
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      const file = e.dataTransfer.files[0];
+      if (file?.type.startsWith("image/")) processFile(file);
+    },
+    [processFile]
+  );
 
-  const handleDragLeave = useCallback(() => {
-    setIsDragging(false);
-  }, []);
+  const handleFileSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) processFile(file);
+    },
+    [processFile]
+  );
+
+  const handleSend = async () => {
+    if (!userMessage.trim() || recommending) return;
+
+    const newMessages: Message[] = [...messages, { role: "user", content: userMessage }];
+    setMessages(newMessages);
+    setUserMessage("");
+    setRecommending(true);
+    scrollToBottom();
+
+    try {
+      const res = await fetch("/api/recommend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roomAnalysis,
+          userMessage,
+          conversationHistory: newMessages,
+        }),
+      });
+      const data = await res.json();
+
+      setMessages([...newMessages, { role: "ai", content: data.message || "Here are my recommendations:" }]);
+      if (data.recommendations?.length) {
+        setRecommendations(data.recommendations);
+      }
+    } catch {
+      setMessages([...newMessages, { role: "ai", content: "Something went wrong. Could you try again?" }]);
+    } finally {
+      setRecommending(false);
+      scrollToBottom();
+    }
+  };
+
+  const handleVisualize = async () => {
+    if (visualizing || !recommendations.length) return;
+    setVisualizing(true);
+
+    try {
+      const res = await fetch("/api/visualize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roomDescription: roomAnalysis
+            ? `${(roomAnalysis as Record<string, string>).room_type} with ${(roomAnalysis as Record<string, string>).lighting}, ${(roomAnalysis as Record<string, string>).mood} atmosphere`
+            : "modern living room",
+          products: recommendations.map((r) => ({
+            name: r.product.name,
+            brand: r.product.brand,
+            description: r.product.description,
+          })),
+          style: roomAnalysis
+            ? (roomAnalysis as Record<string, string[]>).style_indicators?.join(", ")
+            : "Scandinavian modern",
+        }),
+      });
+      const data = await res.json();
+      if (data.image_url) {
+        setVisualizationUrl(data.image_url);
+      }
+    } catch {
+      // silently fail for PoC
+    } finally {
+      setVisualizing(false);
+    }
+  };
+
+  const handleReset = () => {
+    setUploaded(false);
+    setImagePreview(null);
+    setImageBase64(null);
+    setRoomAnalysis(null);
+    setMessages([]);
+    setRecommendations([]);
+    setVisualizationUrl(null);
+  };
 
   // Upload state
   if (!uploaded) {
@@ -127,12 +189,19 @@ export default function StudioPage() {
               analyze the space and guide you to the perfect pieces.
             </p>
 
-            {/* Drop zone */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileSelect}
+            />
+
             <div
               onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onClick={() => setUploaded(true)}
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onClick={() => fileInputRef.current?.click()}
               className={`relative aspect-[4/3] max-w-lg mx-auto border-2 border-dashed cursor-pointer transition-all duration-500 flex flex-col items-center justify-center gap-6 ${
                 isDragging
                   ? "border-forest bg-forest/5 scale-[1.02]"
@@ -152,23 +221,13 @@ export default function StudioPage() {
               </div>
               <div>
                 <p className="text-sm text-charcoal mb-1">
-                  {isDragging
-                    ? "Release to upload"
-                    : "Drag your room photo here"}
+                  {isDragging ? "Release to upload" : "Drag your room photo here"}
                 </p>
                 <p className="text-[11px] text-stone-light">
                   or click to browse &middot; JPG, PNG up to 10MB
                 </p>
               </div>
             </div>
-
-            {/* Demo shortcut */}
-            <button
-              onClick={() => setUploaded(true)}
-              className="mt-8 text-[11px] tracking-[0.15em] uppercase text-forest/60 hover:text-forest transition-colors underline underline-offset-4 decoration-forest/20"
-            >
-              Try with a demo room
-            </button>
           </div>
         </main>
       </>
@@ -188,11 +247,11 @@ export default function StudioPage() {
                 Design Studio
               </p>
               <h1 className="font-serif text-charcoal text-2xl font-normal">
-                Your Living Room
+                {roomAnalysis ? String((roomAnalysis as Record<string, string>).room_type || "Your Room").replace(/^\w/, c => c.toUpperCase()) : "Your Room"}
               </h1>
             </div>
             <button
-              onClick={() => setUploaded(false)}
+              onClick={handleReset}
               className="flex items-center gap-2 text-[11px] tracking-[0.15em] uppercase text-stone hover:text-forest transition-colors"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -206,46 +265,66 @@ export default function StudioPage() {
             <div className="space-y-8">
               {/* Room preview */}
               <div className="relative aspect-[16/10] bg-cream overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <ImageIcon
-                      className="w-12 h-12 text-stone-light/40 mx-auto mb-3"
-                      strokeWidth={1}
-                    />
-                    <p className="text-sm text-stone-light">
-                      Room preview
-                    </p>
-                    <p className="text-[11px] text-stone-light/60 mt-1">
-                      Your uploaded photo will appear here
-                    </p>
+                {visualizationUrl ? (
+                  <img
+                    src={visualizationUrl}
+                    alt="AI visualization"
+                    className="w-full h-full object-cover"
+                  />
+                ) : imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="Your room"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <ImageIcon className="w-12 h-12 text-stone-light/40" strokeWidth={1} />
                   </div>
-                </div>
+                )}
+                {visualizationUrl && (
+                  <div className="absolute top-4 left-4 bg-forest/90 text-cream px-3 py-1.5 text-[10px] tracking-[0.2em] uppercase">
+                    AI Visualization
+                  </div>
+                )}
               </div>
 
               {/* Generate button */}
-              <button className="w-full py-4 bg-forest text-cream text-[13px] tracking-[0.2em] uppercase hover:bg-forest-light transition-colors flex items-center justify-center gap-3 group">
-                <Sparkles
-                  className="w-4 h-4 group-hover:rotate-12 transition-transform"
-                  strokeWidth={1.5}
-                />
-                Generate Visualization
+              <button
+                onClick={handleVisualize}
+                disabled={visualizing || !recommendations.length}
+                className="w-full py-4 bg-forest text-cream text-[13px] tracking-[0.2em] uppercase hover:bg-forest-light transition-colors flex items-center justify-center gap-3 group disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {visualizing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Generating Visualization...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" strokeWidth={1.5} />
+                    {recommendations.length ? "Generate Visualization" : "Get recommendations first"}
+                  </>
+                )}
               </button>
 
               {/* Recommended products */}
-              <div>
-                <p className="text-[11px] tracking-[0.3em] uppercase text-gold mb-6">
-                  Curated for Your Space
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-                  {recommendedProducts.map(({ product, reason }) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      reason={reason}
-                    />
-                  ))}
+              {recommendations.length > 0 && (
+                <div>
+                  <p className="text-[11px] tracking-[0.3em] uppercase text-gold mb-6">
+                    Curated for Your Space
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                    {recommendations.map(({ product, reason }) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        reason={reason}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Right: AI Conversation */}
@@ -254,25 +333,21 @@ export default function StudioPage() {
               <div className="px-5 py-4 border-b border-cream-dark">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 bg-forest flex items-center justify-center">
-                    <span className="font-serif text-cream text-[10px] italic">
-                      SA
-                    </span>
+                    <span className="font-serif text-cream text-[10px] italic">SA</span>
                   </div>
                   <p className="text-[11px] tracking-[0.15em] uppercase text-charcoal-light">
                     AI Design Assistant
                   </p>
+                  {(analyzing || recommending) && (
+                    <Loader2 className="w-3 h-3 animate-spin text-gold ml-auto" />
+                  )}
                 </div>
               </div>
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto px-5 py-6 space-y-5">
-                {mockMessages.map((msg, i) => (
-                  <div
-                    key={i}
-                    className={`${
-                      msg.role === "ai" ? "" : "flex justify-end"
-                    }`}
-                  >
+                {messages.map((msg, i) => (
+                  <div key={i} className={msg.role === "ai" ? "" : "flex justify-end"}>
                     <div
                       className={`max-w-[90%] ${
                         msg.role === "ai"
@@ -285,32 +360,46 @@ export default function StudioPage() {
                           Style Architect
                         </p>
                       )}
-                      <p
-                        className={`text-sm leading-relaxed ${
-                          msg.role === "ai" ? "text-charcoal" : "text-cream"
-                        }`}
-                      >
+                      <p className={`text-sm leading-relaxed ${msg.role === "ai" ? "text-charcoal" : "text-cream"}`}>
                         {msg.content}
                       </p>
                     </div>
                   </div>
                 ))}
+                {recommending && (
+                  <div className="bg-warm-white border border-cream-dark px-4 py-3">
+                    <p className="text-[10px] tracking-[0.2em] uppercase text-gold mb-2">Style Architect</p>
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-3 h-3 animate-spin text-stone" />
+                      <p className="text-sm text-stone italic">Curating recommendations...</p>
+                    </div>
+                  </div>
+                )}
+                <div ref={chatEndRef} />
               </div>
 
               {/* Input */}
               <div className="px-5 py-4 border-t border-cream-dark">
-                <div className="flex items-center gap-3">
+                <form
+                  onSubmit={(e) => { e.preventDefault(); handleSend(); }}
+                  className="flex items-center gap-3"
+                >
                   <input
                     type="text"
                     value={userMessage}
                     onChange={(e) => setUserMessage(e.target.value)}
-                    placeholder="Describe your vision..."
-                    className="flex-1 bg-transparent text-sm text-charcoal placeholder:text-stone-light focus:outline-none"
+                    placeholder={analyzing ? "Analyzing your room..." : "Describe your vision..."}
+                    disabled={analyzing}
+                    className="flex-1 bg-transparent text-sm text-charcoal placeholder:text-stone-light focus:outline-none disabled:opacity-50"
                   />
-                  <button className="w-8 h-8 flex items-center justify-center bg-forest hover:bg-forest-light transition-colors">
+                  <button
+                    type="submit"
+                    disabled={!userMessage.trim() || analyzing || recommending}
+                    className="w-8 h-8 flex items-center justify-center bg-forest hover:bg-forest-light transition-colors disabled:opacity-30"
+                  >
                     <Send className="w-3.5 h-3.5 text-cream" strokeWidth={1.5} />
                   </button>
-                </div>
+                </form>
               </div>
             </div>
           </div>
