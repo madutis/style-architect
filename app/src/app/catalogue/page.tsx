@@ -66,7 +66,7 @@ export default function CataloguePage() {
               <p className="text-[11px] tracking-[0.3em] uppercase text-gold mb-2">
                 Collection
               </p>
-              <h1 className="font-serif text-charcoal text-4xl sm:text-5xl font-light">
+              <h1 className="font-serif text-charcoal text-4xl sm:text-5xl font-normal">
                 Catalogue
               </h1>
             </div>
@@ -175,7 +175,7 @@ export default function CataloguePage() {
 
               {filtered.length === 0 && (
                 <div className="text-center py-24">
-                  <p className="font-serif text-charcoal text-xl font-light mb-2">
+                  <p className="font-serif text-charcoal text-xl font-normal mb-2">
                     No pieces match your criteria
                   </p>
                   <p className="text-sm text-stone">

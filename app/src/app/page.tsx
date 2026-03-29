@@ -10,33 +10,33 @@ export default function Home() {
       <Navigation />
 
       {/* ── Hero ──────────────────────────────────────── */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-8 pt-16 relative overflow-hidden">
+      <section className="h-screen flex flex-col items-center px-8 pt-16 relative overflow-hidden">
         {/* Subtle gradient background */}
         <div className="absolute inset-0 bg-gradient-to-b from-cream/50 via-warm-white to-warm-white" />
 
-        <div className="relative z-10 text-center max-w-3xl mx-auto">
+        <div className="relative z-10 text-center max-w-3xl mx-auto flex-1 flex flex-col items-center justify-center">
           {/* Logo mark */}
-          <div className="animate-fade-up w-24 h-24 mx-auto mb-12 bg-forest flex items-center justify-center">
-            <span className="font-serif text-cream text-4xl font-light italic">
+          <div className="animate-fade-up w-20 h-20 mx-auto mb-8 bg-forest flex items-center justify-center">
+            <span className="font-serif text-cream text-3xl font-normal italic">
               SA
             </span>
           </div>
 
           {/* Title */}
-          <h1 className="animate-fade-up delay-200 font-serif text-charcoal text-5xl sm:text-7xl font-light mb-6 leading-[0.95]">
+          <h1 className="animate-fade-up delay-200 font-serif text-charcoal text-5xl sm:text-7xl font-normal mb-5 leading-[0.95]">
             Style Architect
           </h1>
 
           {/* Tagline */}
-          <p className="animate-fade-up delay-300 text-stone text-base sm:text-lg tracking-[0.2em] uppercase font-light mb-4">
+          <p className="animate-fade-up delay-300 text-stone text-base sm:text-lg tracking-[0.2em] uppercase font-normal mb-3">
             your unique style
           </p>
-          <p className="animate-fade-up delay-400 text-stone-light text-sm tracking-[0.3em] uppercase font-light mb-16">
+          <p className="animate-fade-up delay-400 text-stone-light text-sm tracking-[0.3em] uppercase font-normal mb-8">
             easy &middot; real &middot; about you
           </p>
 
           {/* Divider */}
-          <div className="animate-line-grow delay-500 h-px bg-gradient-to-r from-transparent via-gold to-transparent w-48 mx-auto mb-16" />
+          <div className="animate-line-grow delay-500 h-px bg-gradient-to-r from-transparent via-gold to-transparent w-48 mx-auto mb-8" />
 
           {/* CTA */}
           <Link
@@ -47,14 +47,6 @@ export default function Home() {
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 animate-fade-in delay-800">
-          <div className="w-px h-12 bg-gradient-to-b from-transparent to-stone-light mx-auto mb-2" />
-          <p className="text-[10px] tracking-[0.3em] uppercase text-stone-light">
-            Scroll
-          </p>
-        </div>
       </section>
 
       {/* ── Value Proposition ──────────────────────────── */}
@@ -63,7 +55,7 @@ export default function Home() {
           <p className="text-[11px] tracking-[0.3em] uppercase text-gold text-center mb-4">
             The Platform
           </p>
-          <h2 className="font-serif text-charcoal text-3xl sm:text-4xl font-light text-center mb-20 max-w-xl mx-auto leading-tight">
+          <h2 className="font-serif text-charcoal text-3xl sm:text-4xl font-normal text-center mb-20 max-w-xl mx-auto leading-tight">
             Where artificial intelligence meets European design sensibility
           </h2>
 
@@ -89,7 +81,7 @@ export default function Home() {
                 <div className="w-12 h-12 mx-auto mb-6 border border-forest/10 flex items-center justify-center group-hover:border-forest/30 transition-colors">
                   <card.icon className="w-5 h-5 text-forest/60" strokeWidth={1.5} />
                 </div>
-                <h3 className="font-serif text-charcoal text-xl font-light mb-3">
+                <h3 className="font-serif text-charcoal text-xl font-normal mb-3">
                   {card.title}
                 </h3>
                 <p className="text-sm text-stone leading-relaxed max-w-xs mx-auto">
@@ -112,7 +104,7 @@ export default function Home() {
           <p className="text-[11px] tracking-[0.3em] uppercase text-gold text-center mb-4">
             How It Works
           </p>
-          <h2 className="font-serif text-charcoal text-3xl sm:text-4xl font-light text-center mb-20 max-w-lg mx-auto leading-tight">
+          <h2 className="font-serif text-charcoal text-3xl sm:text-4xl font-normal text-center mb-20 max-w-lg mx-auto leading-tight">
             Three steps from inspiration to realization
           </h2>
 
@@ -142,10 +134,10 @@ export default function Home() {
                     : ""
                 }`}
               >
-                <p className="font-serif text-gold text-5xl font-light mb-6">
+                <p className="font-serif text-gold text-5xl font-normal mb-6">
                   {step.step}
                 </p>
-                <h3 className="font-serif text-charcoal text-2xl font-light mb-3">
+                <h3 className="font-serif text-charcoal text-2xl font-normal mb-3">
                   {step.title}
                 </h3>
                 <p className="text-sm text-stone leading-relaxed">
@@ -169,7 +161,7 @@ export default function Home() {
                 key={brand.name}
                 className="text-center group"
               >
-                <p className="font-serif text-charcoal/40 group-hover:text-charcoal text-lg font-light transition-colors">
+                <p className="font-serif text-charcoal/40 group-hover:text-charcoal text-lg font-normal transition-colors">
                   {brand.name}
                 </p>
                 <p className="text-[10px] tracking-[0.2em] uppercase text-stone-light mt-0.5">
@@ -183,7 +175,7 @@ export default function Home() {
 
       {/* ── Final CTA ─────────────────────────────────── */}
       <section className="py-32 px-8 text-center">
-        <h2 className="font-serif text-charcoal text-3xl sm:text-5xl font-light mb-6 max-w-lg mx-auto leading-tight">
+        <h2 className="font-serif text-charcoal text-3xl sm:text-5xl font-normal mb-6 max-w-lg mx-auto leading-tight">
           Ready to design with intention?
         </h2>
         <p className="text-stone text-sm mb-12 max-w-md mx-auto">

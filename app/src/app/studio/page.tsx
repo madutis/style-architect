@@ -84,7 +84,7 @@ export default function StudioPage() {
             <p className="text-[11px] tracking-[0.3em] uppercase text-gold mb-4">
               Design Studio
             </p>
-            <h1 className="font-serif text-charcoal text-4xl sm:text-5xl font-light mb-4 leading-tight">
+            <h1 className="font-serif text-charcoal text-4xl sm:text-5xl font-normal mb-4 leading-tight">
               Show us your space
             </h1>
             <p className="text-stone text-sm mb-12 max-w-md mx-auto">
@@ -152,7 +152,7 @@ export default function StudioPage() {
               <p className="text-[11px] tracking-[0.3em] uppercase text-gold mb-1">
                 Design Studio
               </p>
-              <h1 className="font-serif text-charcoal text-2xl font-light">
+              <h1 className="font-serif text-charcoal text-2xl font-normal">
                 Your Living Room
               </h1>
             </div>

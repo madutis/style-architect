@@ -10,8 +10,8 @@
   --color-charcoal: #2D2D2D;
   --color-charcoal-light: #4A4A4A;
   --color-warm-white: #FAFAF8;
-  --color-stone: #A69B8D;
-  --color-stone-light: #C4BAB0;
+  --color-stone: #8A7F72;
+  --color-stone-light: #A69B8D;
 
   --font-serif: "Cormorant Garamond", "Georgia", serif;
   --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
@@ -61,9 +61,13 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1.1;
+}
+
+body {
+  font-weight: 400;
 }
 
 /* ── Transitions ─────────────────────────────────── */

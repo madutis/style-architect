@@ -17,11 +17,11 @@ export default function Navigation() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
           <div className="w-10 h-10 bg-forest flex items-center justify-center">
-            <span className="font-serif text-cream text-lg font-light tracking-tight italic">
+            <span className="font-serif text-cream text-lg font-normal tracking-tight italic">
               SA
             </span>
           </div>
-          <span className="font-serif text-charcoal text-sm tracking-[0.2em] uppercase font-light hidden sm:block">
+          <span className="font-serif text-charcoal text-sm tracking-[0.2em] uppercase font-normal hidden sm:block">
             Style Architect
           </span>
         </Link>

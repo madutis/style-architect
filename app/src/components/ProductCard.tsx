@@ -38,7 +38,7 @@ export default function ProductCard({ product, reason }: ProductCardProps) {
             {product.brand} / {product.country}
           </p>
         </div>
-        <p className="font-serif text-charcoal text-lg font-light">
+        <p className="font-serif text-charcoal text-lg font-normal">
           {product.name}
         </p>
         <p className="text-sm text-charcoal-light">

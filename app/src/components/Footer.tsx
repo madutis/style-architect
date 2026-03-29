@@ -7,12 +7,12 @@ export default function Footer() {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 border border-cream/20 flex items-center justify-center">
-                <span className="font-serif text-cream text-xl font-light italic">
+                <span className="font-serif text-cream text-xl font-normal italic">
                   SA
                 </span>
               </div>
               <div>
-                <p className="font-serif text-cream text-lg tracking-[0.15em] uppercase font-light">
+                <p className="font-serif text-cream text-lg tracking-[0.15em] uppercase font-normal">
                   Style Architect
                 </p>
                 <p className="text-[11px] tracking-[0.25em] uppercase text-cream/40">
