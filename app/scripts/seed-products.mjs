@@ -1,9 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
+import { config } from "dotenv";
+config({ path: ".env.local" });
 
 const supabase = createClient(
-  "https://wycuasyjdtlepetupklk.supabase.co",
-  // service role key for write access
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5Y3Vhc3lqZHRsZXBldHVwa2xrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDc1MjM3MCwiZXhwIjoyMDkwMzI4MzcwfQ.sDuzGtnq9OSGdeAFtIq44cVnheK-HSX6mnpC3WWnPL8"
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 const products = [

@@ -23,7 +23,7 @@ async function getProducts(): Promise<Product[]> {
   return data as Product[];
 }
 
-export const revalidate = 60; // revalidate every 60s
+export const dynamic = "force-dynamic";
 
 export default async function CataloguePage() {
   const products = await getProducts();
