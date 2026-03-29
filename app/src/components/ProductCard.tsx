@@ -1,6 +1,6 @@
 "use client";
 
-import type { Product } from "@/data/products";
+import type { Product } from "@/lib/types";
 
 interface ProductCardProps {
   product: Product;
@@ -14,7 +14,7 @@ export default function ProductCard({ product, reason }: ProductCardProps) {
       <div className="relative aspect-square bg-cream overflow-hidden mb-4">
         <div className="absolute inset-0 flex items-center justify-center">
           <img
-            src={product.imageUrl}
+            src={product.image_url}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
           />
@@ -35,14 +35,14 @@ export default function ProductCard({ product, reason }: ProductCardProps) {
       <div className="space-y-1">
         <div className="flex items-baseline justify-between">
           <p className="text-[11px] tracking-[0.15em] uppercase text-stone">
-            {product.brand} / {product.country}
+            {product.brand} / {product.brand_country}
           </p>
         </div>
         <p className="font-serif text-charcoal text-lg font-normal">
           {product.name}
         </p>
         <p className="text-sm text-charcoal-light">
-          &euro;{product.price.toLocaleString("de-DE")}
+          &euro;{product.price_eur.toLocaleString("de-DE")}
         </p>
       </div>
 

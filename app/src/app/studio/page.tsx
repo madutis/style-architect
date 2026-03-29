@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import Navigation from "@/components/Navigation";
 import ProductCard from "@/components/ProductCard";
-import { products } from "@/data/products";
+import type { Product } from "@/lib/types";
 import {
   Upload,
   Camera,
@@ -31,24 +31,59 @@ const mockMessages = [
   },
 ];
 
+const mockProducts: Product[] = [
+  {
+    id: "mock-1", name: "Mags Sofa 3-Seater", brand: "HAY", brand_country: "Denmark",
+    category: "Furniture", subcategory: "Sofa", price_eur: 3295,
+    styles: ["Scandinavian", "Modern"], materials: ["Fabric", "Wood"],
+    design_feel: ["Warm", "Calm"], colors: ["Beige"], room_types: ["Living Room"],
+    description: "A modular sofa system with clean lines and generous proportions.",
+    image_url: "https://placehold.co/400x400/E8E0D8/2D2D2D?text=Mags+Sofa",
+  },
+  {
+    id: "mock-2", name: "Flowerpot VP3 Table Lamp", brand: "&Tradition", brand_country: "Denmark",
+    category: "Lighting", subcategory: "Table Lamp", price_eur: 359,
+    styles: ["Scandinavian"], materials: ["Metal"],
+    design_feel: ["Warm", "Soft"], colors: ["Grey"], room_types: ["Living Room"],
+    description: "Verner Panton's iconic 1968 design.",
+    image_url: "https://placehold.co/400x400/E8E0D8/2D2D2D?text=Flowerpot",
+  },
+  {
+    id: "mock-3", name: "Lato LN9 Side Table", brand: "&Tradition", brand_country: "Denmark",
+    category: "Furniture", subcategory: "Coffee Table", price_eur: 489,
+    styles: ["Modern", "Sculptural"], materials: ["Marble", "Steel"],
+    design_feel: ["Elegant", "Minimal"], colors: ["White"], room_types: ["Living Room"],
+    description: "Designed by Luca Nichetto, oval marble top on sculptural steel base.",
+    image_url: "https://placehold.co/400x400/E8E0D8/2D2D2D?text=Lato+LN9",
+  },
+  {
+    id: "mock-4", name: "Restore Round Basket", brand: "Muuto", brand_country: "Denmark",
+    category: "Decor", subcategory: "Storage", price_eur: 89,
+    styles: ["Scandinavian", "Minimal"], materials: ["Recycled PET Felt"],
+    design_feel: ["Calm", "Natural"], colors: ["Burnt Orange"], room_types: ["Living Room"],
+    description: "Made from recycled plastic bottles transformed into soft felt.",
+    image_url: "https://placehold.co/400x400/E8E0D8/2D2D2D?text=Restore",
+  },
+];
+
 const recommendedProducts = [
   {
-    product: products[1],
+    product: mockProducts[0],
     reason:
       "The Mags sofa in Hallingdal 224 brings warmth through its nubby textile and generous proportions — it anchors the room without overwhelming the natural light.",
   },
   {
-    product: products[3],
+    product: mockProducts[1],
     reason:
       "Panton's Flowerpot in soft grey adds a friendly, sculptural accent beside the sofa. Its rounded form softens the room's linear architecture.",
   },
   {
-    product: products[0],
+    product: mockProducts[2],
     reason:
       "The Lato side table's warm Crema Diva marble pairs with the oak floor — a touch of understated luxury that ties the palette together.",
   },
   {
-    product: products[4],
+    product: mockProducts[3],
     reason:
       "The Restore basket in burnt orange introduces a grounding accent color while solving practical storage needs. Made from recycled materials.",
   },
